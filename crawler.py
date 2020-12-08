@@ -2,7 +2,7 @@ import tweepy as tw
 import json
 import re
 
-keys_json = open('keys.json', 'r').read()
+keys_json = open('config/keys.json', 'r').read()
 keys = json.loads(keys_json)
 
 CONSUMER_KEY = keys['consumer_key']
@@ -21,8 +21,8 @@ def get_tweets(to_search, count):
 
     for tweet in tw.Cursor(api.search, q=to_search, lang='en', tweet_mode='extended', since='2020-12-01').items(count):
         if pattern.match(tweet._json['user']['location']) != None:
-            tweetsList.append(tweet._json['full_text'])
-            print(tweet._json['user']['location'])
+            pair = (tweet._json['user']['location'], tweet._json['full_text'])
+            tweetsList.append(pair)
     return tweetsList
 
 
