@@ -1,10 +1,21 @@
+import random
+
 import plotly.graph_objects as go
 from geopy.geocoders import Nominatim
-import random
+
 import crawler
 
 
-def get_tweets_locations(to_search, count):
+def get_tweets_locations(to_search: str, count: int):
+    """Return a tuple containing the latitudes, longitudes and text of each
+    tweet brought using the crawler, as well as how many of them were
+    unsuccessfully found.
+
+    :param to_search: A hashtag, given to the crawler.
+    :param count: A natural number, given to the crawler.
+    :return: A (latitudes, longitudes, texts, none_found) tuple.
+    """
+
     tweets = crawler.get_tweets(to_search, count)
     geolocator = Nominatim(user_agent='TwitterPlotter')
 
@@ -36,14 +47,21 @@ def get_tweets_locations(to_search, count):
     return latitudes, longitudes, texts, none_found
 
 
-def generate_html_map(to_search, count):
+def generate_html_map(to_search: str, count: int):
+    """Generate a HTML file of an interactive world map containing the
+    locations of all <count> tweets with the <to_search> hashtag.
+
+    :param to_search: A hashtag.
+    :param count: A natural number.
+    """
+
     mapbox_access_token = open('config/.mapbox_token').read()
     latitudes, longitudes, texts, none_found = get_tweets_locations(to_search, count)
 
     if none_found != 0:
-        print('Could not locate', none_found, 'out of', count, 'locations')
+        print(f'Could not locate {none_found} out of {count} locations')
     else:
-        print('Successfully located all', count,'locations!')
+        print(f'Successfully located all {count} locations!')
 
     fig = go.Figure(go.Scattermapbox(
             lat=latitudes,
@@ -74,4 +92,6 @@ def generate_html_map(to_search, count):
 
 
 if __name__ == '__main__':
-    generate_html_map('#antivax', 30)
+    hashtag = str(input('What hashtag would you like to search for? '))
+    tweets_count = int(input('And how many tweets with this hashtag? '))
+    generate_html_map(hashtag, tweets_count)
